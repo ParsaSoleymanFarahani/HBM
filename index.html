@@ -110,7 +110,6 @@ tr:hover td{background:var(--surface2)}
     <a href="#p4"><span class="nav-icon"></span> Feature uncertainty</a>
     <a href="#p5"><span class="nav-icon"></span> Information gain</a>
     <a href="#p6"><span class="nav-icon"></span> Site ranges</a>
-    <a href="#p7"><span class="nav-icon"></span> Cost per bit</a>
     <a href="#p8"><span class="nav-icon"></span> Leave-one-out</a>
   </nav>
 </aside>
@@ -268,24 +267,6 @@ tr:hover td{background:var(--surface2)}
         <tbody id="siteTable"></tbody>
       </table>
     </div>
-  </div>
-</section>
-
-
-<!-- ══ PAGE 7 ══ -->
-<section id="p7" class="page">
-  <div class="page-header">
-    <h2>Cost per bit</h2>
-    <p>Annual cost compared with average information gain, so counter technologies can be evaluated on a common information basis.</p>
-  </div>
-  <div class="grid g3" style="margin-bottom:16px">
-    <div class="card kpi"><div class="k-label">Continuous IG</div><div class="k-value" id="cpContIG"></div><div class="k-sub">Average bits</div></div>
-    <div class="card kpi"><div class="k-label">Short-term IG</div><div class="k-value" id="cpShortIG"></div><div class="k-sub">Average bits</div></div>
-    <div class="card kpi"><div class="k-label">Information ratio</div><div class="k-value" id="cpRatio"></div><div class="k-sub">Continuous / short-term</div></div>
-  </div>
-  <div class="grid g2" style="margin-bottom:16px">
-    <div class="card"><h3>Cost per bit by scenario</h3><div id="cpbChart" style="height:520px"></div></div>
-    <div class="card"><h3>Scenario table</h3><div class="tbl-wrap"><table><thead><tr><th>Scenario</th><th>Counter type</th><th>Annual cost</th><th>Avg info gain</th><th>Cost per bit</th></tr></thead><tbody id="cpbTable"></tbody></table></div></div>
   </div>
 </section>
 
@@ -552,20 +533,6 @@ function render() {
       <td>${fmt(d.adt_lo90)}</td><td>${fmt(d.adt_hi90)}</td>
       <td>${d.site_fx.toFixed(3)}</td><td>${fmt(d.width95)}</td>
     </tr>`).join('');
-
-  // PAGE 7 — cost per bit
-  if (D.costPerBit && D.costPerBit.length) {
-    document.getElementById('cpContIG').textContent=fmt(D.contIG,3)+' bits';
-    document.getElementById('cpShortIG').textContent=fmt(D.shortIG,3)+' bits';
-    document.getElementById('cpRatio').textContent=D.shortIG?fmt(D.contIG/D.shortIG,2)+'×':'-';
-    const contCPB=D.costPerBit.filter(d=>d['Counter type']==='Continuous');
-    const shortCPB=D.costPerBit.filter(d=>d['Counter type']==='Short-term');
-    Plotly.newPlot('cpbChart',[
-      {name:'Continuous',x:contCPB.map(d=>d.Scenario),y:contCPB.map(d=>d['Cost per bit ($/bit)']),type:'bar',marker:{color:css('--teal')},text:contCPB.map(d=>'$'+Math.round(d['Cost per bit ($/bit)']).toLocaleString()),textposition:'outside'},
-      {name:'Short-term',x:shortCPB.map(d=>d.Scenario),y:shortCPB.map(d=>d['Cost per bit ($/bit)']),type:'bar',marker:{color:css('--gold')},text:shortCPB.map(d=>'$'+Math.round(d['Cost per bit ($/bit)']).toLocaleString()),textposition:'outside'}
-    ],lay({barmode:'group',yaxis:{title:'Cost per bit ($/bit)'},xaxis:{tickangle:-50},legend:{x:.5,xanchor:'center',y:1.1,orientation:'h'},margin:{l:60,r:16,t:40,b:130}}),{displayModeBar:false,responsive:true});
-    document.getElementById('cpbTable').innerHTML=D.costPerBit.map(d=>`<tr><td>${d.Scenario}</td><td><span class="badge ${d['Counter type']==='Continuous'?'badge-c':'badge-s'}">${d['Counter type']}</span></td><td>$${Number(d['Annual cost ($)']).toLocaleString()}</td><td>${Number(d['Avg info gain (bits)']).toFixed(3)}</td><td><b>$${Math.round(d['Cost per bit ($/bit)']).toLocaleString()}</b></td></tr>`).join('');
-  }
 
   // PAGE 8 — LOO
   if (D.loo && D.loo.length) {
